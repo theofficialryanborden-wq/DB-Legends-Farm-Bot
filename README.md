@@ -25,6 +25,10 @@ Make sure Android Debug Bridge can see your device:
 
 `adb devices`
 
+For the GUI, make sure Tkinter is installed. On Ubuntu:
+
+`sudo apt-get install python3-tk`
+
 ## Configure
 
 Write the default config:
