@@ -14,8 +14,8 @@ class BotGui:
     def __init__(self, root: tk.Tk, session: BotSession | None = None) -> None:
         self.root = root
         self.session = session or BotSession()
-        self.duration_var = tk.IntVar(value=60)
-        self.rotation_interval_var = tk.IntVar(value=30)
+        self.duration_var = tk.StringVar(value="60")
+        self.rotation_interval_var = tk.StringVar(value="30")
         self.rotate_var = tk.BooleanVar(value=True)
         self.new_event_var = tk.StringVar()
         self.status_var = tk.StringVar(value="Ready")
@@ -88,9 +88,19 @@ class BotGui:
 
         run_card = self._card(cards, "Run settings")
         run_card.grid(row=0, column=0, sticky="nsew", padx=(0, 12), pady=(0, 12))
-        self._number_field(run_card, "How long to run (minutes)", self.duration_var, 1, 720)
+        self._choice_field(
+            run_card,
+            "How long to run (minutes)",
+            self.duration_var,
+            ("1", "5", "15", "30", "60", "120", "240", "480", "720"),
+        )
         ttk.Checkbutton(run_card, text="Rotate events while running", variable=self.rotate_var).pack(anchor="w", pady=(16, 8))
-        self._number_field(run_card, "Rotate every (minutes)", self.rotation_interval_var, 1, 240)
+        self._choice_field(
+            run_card,
+            "Rotate every (minutes)",
+            self.rotation_interval_var,
+            ("1", "5", "10", "15", "30", "60", "120", "240"),
+        )
 
         event_card = self._card(cards, "Event rotation")
         event_card.grid(row=0, column=1, rowspan=2, sticky="nsew", pady=(0, 12))
@@ -137,9 +147,18 @@ class BotGui:
         ttk.Label(card, text=title, style="CardTitle.TLabel").pack(anchor="w", pady=(0, 14))
         return card
 
-    def _number_field(self, parent: ttk.Frame, label: str, variable: tk.IntVar, from_: int, to: int) -> None:
+    def _choice_field(
+        self,
+        parent: ttk.Frame,
+        label: str,
+        variable: tk.StringVar,
+        values: tuple[str, ...],
+    ) -> None:
         ttk.Label(parent, text=label, style="Muted.TLabel").pack(anchor="w")
-        ttk.Spinbox(parent, from_=from_, to=to, textvariable=variable, width=12).pack(anchor="w", pady=(4, 0))
+        ttk.Combobox(parent, state="readonly", textvariable=variable, values=values, width=12).pack(
+            anchor="w",
+            pady=(4, 0),
+        )
 
     def _start(self) -> None:
         try:
