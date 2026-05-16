@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dbl-farm-bot"
+version = "0.1.0"
+description = "ADB automation bot for farming Dragon Ball Legends events."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "Pillow",
+]
+
+[project.scripts]
+dbl-farm-bot = "dbl_farm_bot.cli:main"
+dbl-farm-bot-gui = "dbl_farm_bot.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
