@@ -46,9 +46,20 @@ class MenuNavigator:
 
     def _resolve_tap_point(self, step: NavigationStep):
         if step.tap_template:
+            if not self.analyzer.has_template(step.tap_template):
+                if step.tap and self.allow_blind_taps:
+                    return step.tap
+                raise NavigationError(
+                    f"Template {step.tap_template!r} is not configured.\n\n"
+                    "Add it to the config's `templates` list with a screenshot crop of the matching "
+                    "button/text, or enable dry run to preview coordinates only."
+                )
             match = self._wait_for_template(step.tap_template, step.timeout)
             return match.point
         if step.wait_for_template:
+            if not self.analyzer.has_template(step.wait_for_template) and self.allow_blind_taps:
+                if step.tap:
+                    return step.tap
             self._wait_for_template(step.wait_for_template, step.timeout)
         if step.tap and self.allow_blind_taps:
             return step.tap
