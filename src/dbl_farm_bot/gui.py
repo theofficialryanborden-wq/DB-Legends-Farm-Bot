@@ -11,7 +11,7 @@ import traceback
 from .bot import DragonBallLegendsBot
 from .cli import NoopBattleDetector, _format_result
 from .config import BotConfig
-from .device import ADBDevice, DryRunDevice
+from .device import ADBDevice, ADBError, DryRunDevice
 
 
 class FarmBotApp:
@@ -57,7 +57,10 @@ class FarmBotApp:
             text="Write Pixel 9a config",
             command=self.write_default_config,
         ).grid(row=0, column=0, padx=(0, 8))
-        ttk.Button(buttons, text="Run bot", command=self.run_bot).grid(row=0, column=1)
+        ttk.Button(buttons, text="Test ADB", command=self.test_adb).grid(
+            row=0, column=1, padx=(0, 8)
+        )
+        ttk.Button(buttons, text="Run bot", command=self.run_bot).grid(row=0, column=2)
 
         self.status = tk.StringVar(value="Ready. Dry run is enabled by default.")
         ttk.Label(frame, textvariable=self.status).grid(
@@ -94,6 +97,26 @@ class FarmBotApp:
         self.status.set("Running...")
         Thread(target=self._run_bot_worker, daemon=True).start()
 
+    def test_adb(self) -> None:
+        if self.running:
+            self._log("Bot is already running.")
+            return
+        self.running = True
+        self.status.set("Testing ADB...")
+        Thread(target=self._test_adb_worker, daemon=True).start()
+
+    def _test_adb_worker(self) -> None:
+        try:
+            config = self._load_config()
+            output = ADBDevice(config.device_serial, adb_path=self.adb_path.get()).check_connection()
+            self.queue.put("ADB connection OK:\n" + output.strip())
+        except ADBError as exc:
+            self.queue.put(str(exc))
+        except Exception:
+            self.queue.put(traceback.format_exc())
+        finally:
+            self.queue.put("__DONE__")
+
     def _run_bot_worker(self) -> None:
         try:
             config = self._load_config()
@@ -110,8 +133,12 @@ class FarmBotApp:
                 self.queue.put("\n".join(device.actions))
             else:
                 device = ADBDevice(config.device_serial, adb_path=self.adb_path.get())
+                self.queue.put("Checking ADB connection...")
+                device.check_connection()
                 result = DragonBallLegendsBot(device, config).farm_events()
                 self.queue.put(_format_result(result.cycles))
+        except ADBError as exc:
+            self.queue.put(str(exc))
         except Exception:
             self.queue.put(traceback.format_exc())
         finally:

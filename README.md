@@ -23,6 +23,12 @@ Make sure Android Debug Bridge can see your device:
 
 `adb devices`
 
+On Windows, set the GUI's `ADB path` to the full `adb.exe` file if plain `adb` does not work. A common Android Studio path is:
+
+`C:\Users\YOUR_NAME\AppData\Local\Android\Sdk\platform-tools\adb.exe`
+
+Do not set `ADB path` to the `platform-tools` folder.
+
 ## Configure
 
 Write the default config:
@@ -72,10 +78,12 @@ GUI device run:
 
 1. Run `adb devices` and confirm your Pixel 9a or emulator is listed.
 2. Open `dbl-farm-bot-gui`.
-3. Set `Config file` to your Pixel 9a config.
-4. Set `ADB serial` if more than one device is listed.
-5. Uncheck `Dry run`.
-6. Click `Run bot`.
+3. Set `ADB path` to `adb` or the full `adb.exe` path.
+4. Click `Test ADB`.
+5. Set `Config file` to your Pixel 9a config.
+6. Set `ADB serial` if more than one device is listed.
+7. Uncheck `Dry run`.
+8. Click `Run bot`.
 
 ## Notes
 
