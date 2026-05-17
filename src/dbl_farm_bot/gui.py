@@ -8,7 +8,7 @@ import sys
 from threading import Thread
 import traceback
 
-from .bot import DragonBallLegendsBot
+from .bot import DragonBallLegendsBot, NavigationError
 from .cli import NoopBattleDetector, _format_result
 from .config import BotConfig
 from .device import ADBDevice, ADBError, DryRunDevice
@@ -31,7 +31,7 @@ class FarmBotApp:
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
         frame.columnconfigure(1, weight=1)
-        frame.rowconfigure(8, weight=1)
+        frame.rowconfigure(9, weight=1)
 
         self.config_path = tk.StringVar(value="dbl_pixel9a_config.json")
         self.cycles = tk.StringVar(value="1")
@@ -39,6 +39,7 @@ class FarmBotApp:
         self.adb_path = tk.StringVar(value="adb")
         self.max_battle_seconds = tk.StringVar(value="")
         self.dry_run = tk.BooleanVar(value=True)
+        self.allow_blind_menu_taps = tk.BooleanVar(value=False)
 
         self._entry(frame, "Config file", self.config_path, 0)
         self._entry(frame, "Cycles", self.cycles, 1)
@@ -49,9 +50,14 @@ class FarmBotApp:
         ttk.Checkbutton(frame, text="Dry run", variable=self.dry_run).grid(
             row=5, column=1, sticky="w", pady=4
         )
+        ttk.Checkbutton(
+            frame,
+            text="Allow blind menu taps (not recommended)",
+            variable=self.allow_blind_menu_taps,
+        ).grid(row=6, column=1, sticky="w", pady=4)
 
         buttons = ttk.Frame(frame)
-        buttons.grid(row=6, column=0, columnspan=2, sticky="w", pady=8)
+        buttons.grid(row=7, column=0, columnspan=2, sticky="w", pady=8)
         ttk.Button(
             buttons,
             text="Write Pixel 9a config",
@@ -64,15 +70,15 @@ class FarmBotApp:
 
         self.status = tk.StringVar(value="Ready. Dry run is enabled by default.")
         ttk.Label(frame, textvariable=self.status).grid(
-            row=7, column=0, columnspan=2, sticky="w", pady=(0, 8)
+            row=8, column=0, columnspan=2, sticky="w", pady=(0, 8)
         )
 
         self.output = tk.Text(frame, height=18, wrap="word")
-        self.output.grid(row=8, column=0, columnspan=2, sticky="nsew")
+        self.output.grid(row=9, column=0, columnspan=2, sticky="nsew")
         self.output.insert(
             "end",
             "Pixel 9a defaults target 1080x2424 portrait mode.\n"
-            "Turn off Dry run only after adb devices shows your phone/emulator.\n",
+            "Real runs require menu templates unless blind menu taps are enabled.\n",
         )
         root.after(100, self._drain_queue)
 
@@ -121,6 +127,7 @@ class FarmBotApp:
         try:
             config = self._load_config()
             if self.dry_run.get():
+                config = replace(config, allow_blind_menu_taps=True)
                 device = DryRunDevice()
                 bot = DragonBallLegendsBot(
                     device,
@@ -139,6 +146,8 @@ class FarmBotApp:
                 self.queue.put(_format_result(result.cycles))
         except ADBError as exc:
             self.queue.put(str(exc))
+        except NavigationError as exc:
+            self.queue.put(str(exc))
         except Exception:
             self.queue.put(traceback.format_exc())
         finally:
@@ -148,6 +157,10 @@ class FarmBotApp:
         path = Path(self.config_path.get()).expanduser()
         config = BotConfig.load(path) if path.exists() else BotConfig()
         config = replace(config, cycles=max(1, int(self.cycles.get() or "1")))
+        config = replace(
+            config,
+            allow_blind_menu_taps=bool(self.allow_blind_menu_taps.get()),
+        )
         serial = self.serial.get().strip()
         if serial:
             config = replace(config, device_serial=serial)

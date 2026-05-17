@@ -18,6 +18,9 @@ class ScreenAnalyzer:
     def __init__(self, templates: list[TemplateConfig] | None = None) -> None:
         self.templates = {template.name: template for template in templates or []}
 
+    def has_template(self, name: str | None) -> bool:
+        return bool(name and name in self.templates)
+
     def image_from_png(self, payload: bytes):
         try:
             from PIL import Image

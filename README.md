@@ -45,6 +45,7 @@ If your script folder is not on `PATH`, run the GUI as a Python module instead:
 
 Tune these important fields in `dbl_config.json`:
 
+- `templates`: screenshot crops for the UI buttons/text the bot must recognize before tapping.
 - `enter_event_steps`: menu taps to open the desired event and start the battle.
 - `post_battle_steps`: result-screen and rematch taps after a battle.
 - `battle.arts_cards`: the four arts card slot centers.
@@ -52,6 +53,18 @@ Tune these important fields in `dbl_config.json`:
 - `battle.rising_rush_available_region`: area sampled to decide whether Rising Rush is ready.
 - `battle.timing_gauge_region`: timing gauge bounds used for the maximum Rising Rush tap.
 - `battle.timing_perfect_x_ratio`: target location on the gauge, defaulting near the far-right perfect zone.
+
+Real device runs do not blind-tap menus by default. Add templates for these default menu targets:
+
+- `events_button`
+- `recommended_tab`
+- `first_event`
+- `battle_button`
+- `start_button`
+- `next_button`
+- `rematch_button`
+
+Each template is a small PNG crop of the matching button/text from your device. The bot waits for the template on the live screenshot and taps the detected center. To temporarily use coordinate-only navigation after you calibrate your screen, set `allow_blind_menu_taps` to `true` or pass `--allow-blind-menu-taps`.
 
 ## Run
 
@@ -82,8 +95,9 @@ GUI device run:
 4. Click `Test ADB`.
 5. Set `Config file` to your Pixel 9a config.
 6. Set `ADB serial` if more than one device is listed.
-7. Uncheck `Dry run`.
-8. Click `Run bot`.
+7. Add menu templates to the config, or check `Allow blind menu taps` only after coordinate calibration.
+8. Uncheck `Dry run`.
+9. Click `Run bot`.
 
 ## Notes
 

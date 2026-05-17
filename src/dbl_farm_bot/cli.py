@@ -31,6 +31,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--adb-path", default="adb", help="ADB executable path.")
     parser.add_argument("--dry-run", action="store_true", help="Print taps without touching a device.")
     parser.add_argument(
+        "--allow-blind-menu-taps",
+        action="store_true",
+        help="Allow coordinate-only menu taps. Use only after calibrating your screen.",
+    )
+    parser.add_argument(
         "--max-battle-seconds",
         type=float,
         help="Override battle timeout for quick smoke tests or safer first runs.",
@@ -70,8 +75,11 @@ def main(argv: list[str] | None = None) -> int:
             config,
             battle=replace(config.battle, battle_timeout=args.max_battle_seconds),
         )
+    if args.allow_blind_menu_taps:
+        config = replace(config, allow_blind_menu_taps=True)
 
     if args.dry_run:
+        config = replace(config, allow_blind_menu_taps=True)
         device = DryRunDevice()
         bot = DragonBallLegendsBot(
             device,

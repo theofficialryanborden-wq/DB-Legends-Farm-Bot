@@ -41,20 +41,22 @@ class Region:
 @dataclass(frozen=True)
 class NavigationStep:
     name: str
-    tap: Point
+    tap: Point | None = None
     wait_after: float = 1.0
     retries: int = 1
     wait_for_template: str | None = None
+    tap_template: str | None = None
     timeout: float = 8.0
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "NavigationStep":
         return cls(
             name=str(data["name"]),
-            tap=Point.from_dict(data["tap"]),
+            tap=Point.from_dict(data["tap"]) if data.get("tap") else None,
             wait_after=float(data.get("wait_after", 1.0)),
             retries=int(data.get("retries", 1)),
             wait_for_template=data.get("wait_for_template"),
+            tap_template=data.get("tap_template"),
             timeout=float(data.get("timeout", 8.0)),
         )
 
@@ -150,20 +152,21 @@ class BattleConfig:
 class BotConfig:
     device_profile: str = DEFAULT_DEVICE_PROFILE
     device_serial: str | None = None
+    allow_blind_menu_taps: bool = False
     templates: list[TemplateConfig] = field(default_factory=list)
     enter_event_steps: list[NavigationStep] = field(
         default_factory=lambda: [
-            NavigationStep("events", Point(920, 2247), 1.5),
-            NavigationStep("recommended", Point(310, 461), 1.0),
-            NavigationStep("first_event", Point(560, 871), 1.0),
-            NavigationStep("battle", Point(900, 2323), 1.0),
-            NavigationStep("start", Point(900, 2323), 2.5),
+            NavigationStep("events", Point(920, 2247), 1.5, tap_template="events_button"),
+            NavigationStep("recommended", Point(310, 461), 1.0, tap_template="recommended_tab"),
+            NavigationStep("first_event", Point(560, 871), 1.0, tap_template="first_event"),
+            NavigationStep("battle", Point(900, 2323), 1.0, tap_template="battle_button"),
+            NavigationStep("start", Point(900, 2323), 2.5, tap_template="start_button"),
         ]
     )
     post_battle_steps: list[NavigationStep] = field(
         default_factory=lambda: [
-            NavigationStep("results_next", Point(900, 2323), 1.5, retries=3),
-            NavigationStep("rematch", Point(900, 2323), 2.0),
+            NavigationStep("results_next", Point(900, 2323), 1.5, retries=3, tap_template="next_button"),
+            NavigationStep("rematch", Point(900, 2323), 2.0, tap_template="rematch_button"),
         ]
     )
     battle: BattleConfig = field(default_factory=BattleConfig)
@@ -175,6 +178,7 @@ class BotConfig:
         return cls(
             device_profile=data.get("device_profile", DEFAULT_DEVICE_PROFILE),
             device_serial=data.get("device_serial"),
+            allow_blind_menu_taps=bool(data.get("allow_blind_menu_taps", False)),
             templates=[TemplateConfig.from_dict(item) for item in data.get("templates", [])],
             enter_event_steps=[
                 NavigationStep.from_dict(item) for item in data.get("enter_event_steps", [])
