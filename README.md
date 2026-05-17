@@ -11,7 +11,7 @@ This project provides an ADB-driven Dragon Ball Legends farming bot. It can:
 - Fire Rising Rush, pick an arts card, and time the strike by watching the Rising Rush timing gauge.
 - Repeat the event loop for a configured number of cycles.
 
-The defaults target a 1080x1920 portrait Android device or emulator. Use the generated JSON config to tune coordinates for your device.
+The defaults target a Google Pixel 9a in 1080x2424 portrait mode. Use the generated JSON config to tune coordinates if your Android display size, emulator skin, or in-game layout differs.
 
 ## Setup
 
@@ -29,6 +29,14 @@ Write the default config:
 
 `dbl-farm-bot --write-default-config dbl_config.json`
 
+Or open the desktop GUI:
+
+`dbl-farm-bot-gui`
+
+If your script folder is not on `PATH`, run the GUI as a Python module instead:
+
+`python -m dbl_farm_bot.gui`
+
 Tune these important fields in `dbl_config.json`:
 
 - `enter_event_steps`: menu taps to open the desired event and start the battle.
@@ -45,6 +53,13 @@ Dry-run the tap sequence without touching a device:
 
 `dbl-farm-bot --dry-run --cycles 1 --max-battle-seconds 1`
 
+GUI dry run:
+
+1. Run `dbl-farm-bot-gui`.
+2. Leave `Dry run` checked.
+3. Click `Write Pixel 9a config`.
+4. Click `Run bot`.
+
 Run against the active ADB device:
 
 `dbl-farm-bot --config dbl_config.json --cycles 10`
@@ -52,6 +67,15 @@ Run against the active ADB device:
 Run against a specific device:
 
 `dbl-farm-bot --config dbl_config.json --serial emulator-5554 --cycles 10`
+
+GUI device run:
+
+1. Run `adb devices` and confirm your Pixel 9a or emulator is listed.
+2. Open `dbl-farm-bot-gui`.
+3. Set `Config file` to your Pixel 9a config.
+4. Set `ADB serial` if more than one device is listed.
+5. Uncheck `Dry run`.
+6. Click `Run bot`.
 
 ## Notes
 

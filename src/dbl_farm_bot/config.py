@@ -6,6 +6,9 @@ from pathlib import Path
 from typing import Any
 
 
+DEFAULT_DEVICE_PROFILE = "google_pixel_9a_1080x2424"
+
+
 @dataclass(frozen=True)
 class Point:
     x: int
@@ -79,17 +82,17 @@ class TemplateConfig:
 class BattleConfig:
     arts_cards: list[Point] = field(
         default_factory=lambda: [
-            Point(360, 1830),
-            Point(570, 1830),
-            Point(780, 1830),
-            Point(990, 1830),
+            Point(360, 2310),
+            Point(570, 2310),
+            Point(780, 2310),
+            Point(990, 2310),
         ]
     )
-    rising_rush_button: Point = Point(955, 1575)
-    rising_rush_pick_card: Point = Point(360, 1830)
-    rising_rush_available_region: Region | None = Region(875, 1495, 1035, 1655)
+    rising_rush_button: Point = Point(955, 1988)
+    rising_rush_pick_card: Point = Point(360, 2310)
+    rising_rush_available_region: Region | None = Region(875, 1887, 1035, 2089)
     rising_rush_min_brightness: float = 95.0
-    timing_gauge_region: Region | None = Region(215, 990, 865, 1060)
+    timing_gauge_region: Region | None = Region(215, 1250, 865, 1338)
     timing_perfect_x_ratio: float = 0.94
     timing_tolerance_px: int = 18
     timing_poll_interval: float = 0.025
@@ -145,21 +148,22 @@ class BattleConfig:
 
 @dataclass(frozen=True)
 class BotConfig:
+    device_profile: str = DEFAULT_DEVICE_PROFILE
     device_serial: str | None = None
     templates: list[TemplateConfig] = field(default_factory=list)
     enter_event_steps: list[NavigationStep] = field(
         default_factory=lambda: [
-            NavigationStep("events", Point(920, 1780), 1.5),
-            NavigationStep("recommended", Point(310, 365), 1.0),
-            NavigationStep("first_event", Point(560, 690), 1.0),
-            NavigationStep("battle", Point(900, 1840), 1.0),
-            NavigationStep("start", Point(900, 1840), 2.5),
+            NavigationStep("events", Point(920, 2247), 1.5),
+            NavigationStep("recommended", Point(310, 461), 1.0),
+            NavigationStep("first_event", Point(560, 871), 1.0),
+            NavigationStep("battle", Point(900, 2323), 1.0),
+            NavigationStep("start", Point(900, 2323), 2.5),
         ]
     )
     post_battle_steps: list[NavigationStep] = field(
         default_factory=lambda: [
-            NavigationStep("results_next", Point(900, 1840), 1.5, retries=3),
-            NavigationStep("rematch", Point(900, 1840), 2.0),
+            NavigationStep("results_next", Point(900, 2323), 1.5, retries=3),
+            NavigationStep("rematch", Point(900, 2323), 2.0),
         ]
     )
     battle: BattleConfig = field(default_factory=BattleConfig)
@@ -169,6 +173,7 @@ class BotConfig:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "BotConfig":
         return cls(
+            device_profile=data.get("device_profile", DEFAULT_DEVICE_PROFILE),
             device_serial=data.get("device_serial"),
             templates=[TemplateConfig.from_dict(item) for item in data.get("templates", [])],
             enter_event_steps=[

@@ -26,9 +26,9 @@ class BotTest(unittest.TestCase):
 
         self.assertEqual(len(result.cycles), 1)
         self.assertEqual(result.cycles[0].battle.status, "timeout")
-        self.assertIn("tap 920 1780", device.actions)
-        self.assertIn("tap 360 1830", device.actions)
-        self.assertIn("tap 900 1840", device.actions)
+        self.assertIn("tap 920 2247", device.actions)
+        self.assertIn("tap 360 2310", device.actions)
+        self.assertIn("tap 900 2323", device.actions)
 
 
 if __name__ == "__main__":
