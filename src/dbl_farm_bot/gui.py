@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import argparse
 from pathlib import Path
 from queue import Queue
+import sys
 from threading import Thread
 import traceback
 
@@ -145,8 +147,24 @@ class FarmBotApp:
         self.output.see("end")
 
 
-def main() -> int:
-    import tkinter as tk
+def build_parser() -> argparse.ArgumentParser:
+    return argparse.ArgumentParser(
+        description="Open the Dragon Ball Legends farming bot desktop GUI."
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
+    build_parser().parse_args(argv)
+
+    try:
+        import tkinter as tk
+    except ModuleNotFoundError:
+        print(
+            "Tkinter is required for the GUI. On Windows/macOS it normally ships "
+            "with Python. On Debian/Ubuntu install it with: sudo apt install python3-tk",
+            file=sys.stderr,
+        )
+        return 1
 
     root = tk.Tk()
     FarmBotApp(root)
