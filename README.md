@@ -66,6 +66,14 @@ GUI dry run:
 3. Click `Write Pixel 9a config`.
 4. Click `Run bot`.
 
+GUI template setup:
+
+1. Set `Config file` to the JSON config you want to edit.
+2. Fill in the template `Name`, image `Path`, `Threshold`, and `Stride`.
+3. Optionally fill all four `Region` fields to limit matching to one screen area.
+4. Click `Add template` to save the template into the config file.
+5. Click `Load templates` to review the templates currently saved in that config.
+
 Run against the active ADB device:
 
 `dbl-farm-bot --config dbl_config.json --cycles 10`
